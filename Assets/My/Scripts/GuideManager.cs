@@ -115,8 +115,14 @@ public class GuideManager : MonoBehaviour
         }
         else
         {
-            // 3. 첫 페이지에서 뒤로가기 클릭 시 타이틀로 이동
-            SceneManager.LoadScene(SceneName.Title);
+            if (GameManager.Instance)
+            {
+                GameManager.Instance.GoToTitle();
+            }
+            else
+            {
+                SceneManager.LoadScene(SceneName.Title);
+            }
         }
     }
 
@@ -162,6 +168,8 @@ public class GuideManager : MonoBehaviour
 
         isAtStep5 = true;
         ToggleSubPage(2);
+        
+        GameData.selectedBranchIndex = index;
     }
 
     private void ShowPage(int index)
@@ -182,6 +190,13 @@ public class GuideManager : MonoBehaviour
 
     private void OnFinishClicked()
     {
-        SceneManager.LoadScene(SceneName.Sort);
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.GoToSort();
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneName.Sort);    
+        }
     }
 }

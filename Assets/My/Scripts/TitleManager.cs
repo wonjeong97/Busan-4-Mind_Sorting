@@ -28,6 +28,13 @@ public class TitleManager : MonoBehaviour
     /// </summary>
     private void OnStartButtonClicked()
     {
-        SceneManager.LoadScene(SceneName.Guide);
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.GoToGuide();
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneName.Guide);    
+        }
     }
 }
