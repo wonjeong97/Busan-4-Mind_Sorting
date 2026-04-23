@@ -114,6 +114,15 @@ public class KeyboardManager : MonoBehaviour
     {
         if (!targetInputField) return;
 
+        // 플래시 효과 중 연타 방지: 클릭 즉시 비활성화하고 ClearInput() 호출 시 복구함
+        if (completeButton)
+        {
+            ColorBlock cb = completeButton.colors;
+            cb.disabledColor = cb.normalColor;
+            completeButton.colors = cb;
+            completeButton.interactable = false;
+        }
+
         string finalResult = targetInputField.text;
 
         // 암시적 불리언 변환을 통한 싱글톤 유효성 체크
@@ -136,10 +145,13 @@ public class KeyboardManager : MonoBehaviour
         {
             targetInputField.text = string.Empty;
         }
-        
+
         if (assembler != null)
         {
             assembler.Clear();
         }
+
+        // 뒤로가기로 page0 복귀 시 완성 버튼을 다시 활성화함
+        if (completeButton) completeButton.interactable = true;
     }
 }

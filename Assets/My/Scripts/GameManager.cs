@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Wonjeong.Reporter;
+using Wonjeong.UI;
 using Wonjeong.Utils;
 
 /// <summary>
@@ -27,10 +29,13 @@ public class GameManager : MonoBehaviour
     [Header("UI Audio")]
     [SerializeField] private AudioSource uiAudioSource;
     [SerializeField] private AudioClip defaultClickSound;
+    [SerializeField] private string mainBgmKey;
     
     [Header("Idle Timer Settings")]
     [SerializeField] private float maxIdleTime = 60f; // 최대 대기 시간 (초)
+    
     private float currentIdleTime;
+    public WebcamData WebcamConfig { get; private set; }
 
     /// <summary>
     /// 싱글톤 인스턴스를 설정하고 씬 전환 시 파괴되지 않도록 보호함.
@@ -45,23 +50,42 @@ public class GameManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        
+        LoadWebcamConfig();
+        
         if (systemCanvas != null)
             DontDestroyOnLoad(systemCanvas);
         TimestampLogHandler.Attach();
     }
     
     /// <summary>
-    /// 마우스 커서 숨김 처리 및 다중 디스플레이 활성화를 수행함.
+    /// 마우스 커서 숨김 처리, 다중 디스플레이 활성화 및 기본 BGM 재생을 수행함.
     /// </summary>
     private void Start()
     {
         Cursor.visible = false;
         
-        if (reporter && reporter.show) reporter.show = false;
+        if (reporter)
+        {
+            if (reporter.show) reporter.show = false;
+        }
         
         if (Display.displays.Length > 1)
         {
             Display.displays[1].Activate();
+        }
+
+        // 추가된 로직: 씬 시작 시 SoundManager를 통해 BGM을 재생함
+        if (SoundManager.Instance)
+        {
+            if (!string.IsNullOrEmpty(mainBgmKey))
+            {
+                SoundManager.Instance.PlayBGM(mainBgmKey);
+            }
+            else
+            {
+                Debug.LogWarning("GameManager: mainBgmKey가 인스펙터에 할당되지 않았습니다.");
+            }
         }
     }
     
@@ -78,6 +102,33 @@ public class GameManager : MonoBehaviour
         }
         
         CheckIdleTime();
+    }
+    
+    /// <summary>
+    /// JSON 파일로부터 웹캠 설정을 로드하여 메모리에 캐싱함.
+    /// </summary>
+    public void LoadWebcamConfig()
+    {
+        WebcamData data = JsonLoader.Load<WebcamData>("Webcam.json");
+
+        if (data != null)
+        {
+            WebcamConfig = data;
+        }
+        else
+        {
+            // 파일이 없을 경우 기본값으로 생성 및 캐싱
+            WebcamConfig = new WebcamData();
+            WebcamConfig.Left = 0f;
+            WebcamConfig.Right = 0f;
+            WebcamConfig.Top = 0f;
+            WebcamConfig.Bottom = 0f;
+            WebcamConfig.FlipX = false;
+            WebcamConfig.FlipY = false;
+            
+            JsonLoader.Save<WebcamData>(WebcamConfig, "Webcam.json");
+            Debug.LogWarning("GameManager: Webcam.json이 없어 기본값으로 생성했습니다.");
+        }
     }
     
     /// <summary>

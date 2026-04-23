@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -88,8 +89,22 @@ public class GuideManager : MonoBehaviour
     /// <summary>
     /// 현재 상태에 따라 이전 단계로 되돌아가거나 타이틀 씬으로 이동함.
     /// </summary>
+    /// <summary>
+    /// 버튼을 즉시 비활성화하고 delay 초 후 다시 활성화함.
+    /// </summary>
+    private IEnumerator DebounceButton(Button button, float delay = 1f)
+    {
+        ColorBlock cb = button.colors;
+        cb.disabledColor = cb.normalColor;
+        button.colors = cb;
+        button.interactable = false;
+        yield return new WaitForSeconds(delay);
+        if (button) button.interactable = true;
+    }
+
     private void OnBackClicked()
     {
+        StartCoroutine(DebounceButton(backButton));
         // 1. 분기 선택 완료(Step 5) 상태일 때
         if (isAtStep5)
         {
@@ -147,6 +162,7 @@ public class GuideManager : MonoBehaviour
 
     private void OnNextClicked()
     {
+        StartCoroutine(DebounceButton(nextButtonStep1));
         currentMainIdx++;
         if (currentMainIdx < 3)
         {
@@ -156,11 +172,18 @@ public class GuideManager : MonoBehaviour
         {
             ShowPage(currentMainIdx);
             ToggleSubPage(1);
+            // 새로 나타나는 분기 버튼들에 연타 입력이 넘어오지 않도록 디바운스
+            StartCoroutine(DebounceButton(btn2));
+            StartCoroutine(DebounceButton(btn3));
+            StartCoroutine(DebounceButton(btn4));
         }
     }
 
     private void OnBranchClicked(int index)
     {
+        Button pressedBtn = index == 0 ? btn2 : index == 1 ? btn3 : btn4;
+        StartCoroutine(DebounceButton(pressedBtn));
+
         foreach (GameObject page in mainPages) if (page) page.SetActive(false);
 
         if (mainStep5Pages[index]) mainStep5Pages[index].SetActive(true);
@@ -190,6 +213,8 @@ public class GuideManager : MonoBehaviour
 
     private void OnFinishClicked()
     {
+        StartCoroutine(DebounceButton(finishButton));
+
         if (GameManager.Instance)
         {
             GameManager.Instance.GoToSort();

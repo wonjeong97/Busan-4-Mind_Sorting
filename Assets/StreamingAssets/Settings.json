@@ -4,5 +4,8 @@
     "numToClose": 10,
     "resetClickTime": 3.0,
     "imageAlpha": 0.0
-  }
+  },
+  "sounds": [
+    {"key": "MainBGM", "clipPath": "폴더 스피커.wav", "volume": 1.0}
+  ]
 }
