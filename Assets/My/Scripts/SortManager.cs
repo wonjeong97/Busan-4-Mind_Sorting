@@ -93,10 +93,22 @@ public class SortManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 씬이 파괴될 때(정상 이동, 뒤로가기 이탈, 미입력 초기화 등) 메모리에 남아있는 모든 텍스처를 제거함.
+    /// 씬이 파괴될 때 웹캠 하드웨어 점유를 해제하고, 메모리에 남아있는 모든 텍스처를 제거함.
     /// </summary>
     private void OnDestroy()
     {
+        // 1. 웹캠이 켜진 상태로 씬을 이탈했을 경우 카메라 하드웨어 점유를 강제로 해제함
+        if (webcamTexture)
+        {
+            if (webcamTexture.isPlaying)
+            {
+                webcamTexture.Stop();
+            }
+            Destroy(webcamTexture);
+            webcamTexture = null;
+        }
+
+        // 2. 캡처본 및 결과 화면 텍스처 메모리 해제 (기존 로직)
         ClearCapturedPhoto();
         ClearLoadedResultTextures();
     }
