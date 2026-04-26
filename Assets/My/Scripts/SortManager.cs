@@ -7,43 +7,47 @@ using UnityEngine.UI;
 using Wonjeong.Utils;
 
 public class SortManager : MonoBehaviour
-{   
+{
     public static SortManager Instance { get; private set; }
-    
+
     [SerializeField] private GameObject page2;
     [SerializeField] private GameObject page3;
     [SerializeField] private GameObject page4;
     [SerializeField] private GameObject pageLast;
-    
+
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource;
+
     [SerializeField] private AudioClip shutterSound;
     [SerializeField] private AudioClip completeSound;
-    
+
     [Header("Sub Monitor Pages")]
     [SerializeField] private GameObject[] subPages;
 
     [Header("Sub Monitor Navigation")]
     [SerializeField] private Button subBackButton;
-    [SerializeField] private Button subToTitleButton; 
-    
+
+    [SerializeField] private Button subToTitleButton;
+
     [Header("Result Texts")]
-    [SerializeField] private Text subResultText; 
-    [SerializeField] private Text mainResultText; 
-    
+    [SerializeField] private Text subResultText;
+
+    [SerializeField] private Text mainResultText;
+
     [Header("Effect Settings")]
     [SerializeField] private CanvasGroup flashCanvasGroup;
-    
+
     [Header("Sub Page 3 Settings")]
     [SerializeField] private Text subPage3Text;
+
     [SerializeField] private Button subPage3NextButton;
-    
+
     [Header("Webcam Settings")]
     [SerializeField] private RawImage webcamDisplay;
 
     [Header("Result Settings")]
     [SerializeField] private RawImage[] resultImages;
-    
+
     private WebCamTexture webcamTexture;
     private Texture2D capturedPhoto;
     private int currentSubIdx;
@@ -51,12 +55,12 @@ public class SortManager : MonoBehaviour
     private Coroutine buttonShowCoroutine;
 
     private List<Texture2D> loadedResultTextures;
-    
+
     /// <summary>
     /// 싱글톤 초기화 및 버튼 리스너 연결, 씬 진입 시 이전 캡처 사진들을 미리 로드함.
     /// </summary>
     private void Awake()
-    {   
+    {
         if (Instance)
         {
             Destroy(gameObject);
@@ -66,7 +70,7 @@ public class SortManager : MonoBehaviour
         Instance = this;
 
         loadedResultTextures = new List<Texture2D>();
-        
+
         if (subBackButton)
         {
             subBackButton.onClick.AddListener(OnSubBackClicked);
@@ -81,7 +85,7 @@ public class SortManager : MonoBehaviour
         {
             subPage3NextButton.onClick.AddListener(OnSubPage3NextClicked);
         }
-        
+
         InitializeSortScene(GameData.selectedBranchIndex);
 
         // 씬 진입 시점에 미리 디스크에서 사진을 읽어와 Page_Last의 RawImage들에 세팅해둠
@@ -105,21 +109,22 @@ public class SortManager : MonoBehaviour
         if (page2) page2.SetActive(branchIndex == 0);
         if (page3) page3.SetActive(branchIndex == 1);
         if (page4) page4.SetActive(branchIndex == 2);
-        
+
         if (pageLast) pageLast.SetActive(false);
-        
+
         InitializeSubPages();
     }
-    
+
     /// <summary>
     /// 서브 페이지를 1페이지(인덱스 0)로 활성화함.
     /// </summary>
     private void InitializeSubPages()
     {
         if (subPages == null) return;
+
         SetSubPage(0);
     }
-    
+
     /// <summary>
     /// 입력 완료 시 텍스트 가공 및 플래시 연출을 시작함.
     /// </summary>
@@ -132,7 +137,7 @@ public class SortManager : MonoBehaviour
         {
             subPage3Text.text = string.Format("<color=#E66D7A><{0}></color>로 분류했군요.\n정말 멋져요!", inputText);
         }
-        
+
         if (audioSource && completeSound)
         {
             audioSource.PlayOneShot(completeSound);
@@ -140,12 +145,12 @@ public class SortManager : MonoBehaviour
 
         if (flashCoroutine != null)
         {
-           StopCoroutine(flashCoroutine);
+            StopCoroutine(flashCoroutine);
         }
 
         flashCoroutine = StartCoroutine(FlashAndMoveToNextPage());
     }
-    
+
     /// <summary>
     /// 플래시 연출을 진행한 뒤 캡처를 수행하고 2페이지로 이동함.
     /// </summary>
@@ -162,12 +167,12 @@ public class SortManager : MonoBehaviour
                 flashCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / duration);
                 yield return null;
             }
-            
+
             if (audioSource && shutterSound)
             {
                 audioSource.PlayOneShot(shutterSound);
             }
-            
+
             elapsed = 0f;
             while (elapsed < duration)
             {
@@ -175,21 +180,22 @@ public class SortManager : MonoBehaviour
                 flashCanvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
                 yield return null;
             }
-            
+
             flashCanvasGroup.alpha = 0f;
         }
-        
+
         CaptureWebcam();
 
         // 캡처 완료 후 서브 페이지 2(인덱스 1)로 전환하며, SetSubPage 내부 로직에 의해 웹캠이 꺼짐
         SetSubPage(1);
 
         yield return new WaitForSeconds(3f);
+
         SetSubPage(2);
-        
-        flashCoroutine = null; 
+
+        flashCoroutine = null;
     }
-    
+
     /// <summary>
     /// 뒤로가기 클릭 시 연출 중단 및 페이지 이동을 처리함.
     /// </summary>
@@ -203,6 +209,7 @@ public class SortManager : MonoBehaviour
         button.colors = cb;
         button.interactable = false;
         yield return new WaitForSeconds(delay);
+
         if (button) button.interactable = true;
     }
 
@@ -236,8 +243,9 @@ public class SortManager : MonoBehaviour
             }
             else
             {
-                SceneManager.LoadScene(SceneName.Guide);    
+                SceneManager.LoadScene(SceneName.Guide);
             }
+
             return;
         }
 
@@ -272,10 +280,10 @@ public class SortManager : MonoBehaviour
         }
         else
         {
-            SceneManager.LoadScene(SceneName.Title);    
+            SceneManager.LoadScene(SceneName.Title);
         }
     }
-    
+
     /// <summary>
     /// 인풋 필드와 결과 텍스트를 초기화함.
     /// </summary>
@@ -348,7 +356,7 @@ public class SortManager : MonoBehaviour
         // 2. 저장이 완료된 직후 디스크를 다시 읽어와 Page_Last에 매핑함 (현재 세션 포함)
         LoadAndDisplaySavedPhotos();
     }
-    
+
     /// <summary>
     /// 웹캠 텍스처를 초기화하고 재생함.
     /// </summary>
@@ -425,7 +433,7 @@ public class SortManager : MonoBehaviour
         {
             bool flipX = GameManager.Instance.WebcamConfig.FlipX;
             bool flipY = GameManager.Instance.WebcamConfig.FlipY;
-            
+
             if (flipX || flipY)
             {
                 pixels = FlipPixelArray(pixels, cropWidth, cropHeight, flipX, flipY);
@@ -450,7 +458,7 @@ public class SortManager : MonoBehaviour
                 // 반전 여부에 따라 목적지 X, Y 좌표를 반대로 계산함
                 int destX = flipX ? (width - 1 - x) : x;
                 int destY = flipY ? (height - 1 - y) : y;
-                
+
                 // 1차원 배열 인덱스 공식 (y * width + x)
                 flipped[destY * width + destX] = original[y * width + x];
             }
@@ -460,35 +468,44 @@ public class SortManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 캡처된 사진을 PNG로 변환하여 저장하고, 폴더 내 파일 갯수를 체크하여 6개를 초과하면 오래된 파일부터 삭제함.
+    /// 캡처된 사진을 PNG로 저장하고, 파일이 6개를 초과하면 오래된 파일부터 삭제함.
+    /// (밀리초 단위 저장 및 파일명 기반 정렬로 안정성 강화)
     /// </summary>
     private void SavePhotoToLocal()
     {
         if (!capturedPhoto) return;
 
         byte[] bytes = capturedPhoto.EncodeToPNG();
-        
+
         string directoryPath = Path.Combine(Application.dataPath, "CapturedPhotos");
-        
+
         if (!Directory.Exists(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
         }
 
-        string fileName = string.Format("Photo_{0}.png", System.DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+        // 1. 충돌 방지를 위해 _fff(밀리초 3자리)를 추가하여 절대 중복되지 않도록 변경함
+        string fileName = string.Format("Photo_{0}.png", System.DateTime.Now.ToString("yyyyMMdd_HHmmss_fff"));
         string filePath = Path.Combine(directoryPath, fileName);
 
-        File.WriteAllBytes(filePath, bytes);
-        Debug.LogFormat("SortManager: 캡처된 사진이 저장되었습니다. 경로: {0}", filePath);
+        try
+        {
+            File.WriteAllBytes(filePath, bytes);
+            Debug.LogFormat("SortManager: 캡처된 사진이 저장되었습니다. 경로: {0}", filePath);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogErrorFormat("SortManager: 사진 저장 중 오류 발생 (디스크 락 의심): {0}", e.Message);
+            return;
+        }
 
-        // FIFO 방식 큐잉: 디렉토리 내 파일 목록을 확인하여 갯수 제한 처리
         DirectoryInfo dirInfo = new DirectoryInfo(directoryPath);
         FileInfo[] files = dirInfo.GetFiles("*.png");
 
         if (files.Length > 6)
         {
-            // 생성 시간 기준으로 오래된 파일부터 오름차순 정렬
-            System.Array.Sort(files, (FileInfo a, FileInfo b) => a.CreationTime.CompareTo(b.CreationTime));
+            // 2. OS의 CreationTime 대신 절대적인 '파일명(날짜시간 문자열)' 기준으로 오름차순(오래된 순) 정렬함
+            System.Array.Sort(files, (FileInfo a, FileInfo b) => a.Name.CompareTo(b.Name));
 
             int deleteCount = files.Length - 6;
             for (int i = 0; i < deleteCount; i++)
@@ -496,22 +513,21 @@ public class SortManager : MonoBehaviour
                 try
                 {
                     files[i].Delete();
-                    Debug.LogFormat("SortManager: 최대 보관 갯수를 초과하여 오래된 사진을 삭제했습니다. 파일명: {0}", files[i].Name);
+                    Debug.LogFormat("SortManager: 오래된 사진 삭제 완료. 파일명: {0}", files[i].Name);
                 }
                 catch (System.Exception e)
                 {
-                    Debug.LogErrorFormat("SortManager: 사진 삭제 중 오류 발생: {0}", e.Message);
+                    Debug.LogErrorFormat("SortManager: 사진 삭제 실패: {0}", e.Message);
                 }
             }
         }
     }
 
     /// <summary>
-    /// 디스크에 저장된 이전 사진들을 읽어와 생성일 기준 내림차순(최신 순)으로 정렬한 뒤 UI에 매핑함.
+    /// 디스크에 저장된 이전 사진들을 읽어와 파일명 기준 내림차순(최신 순)으로 정렬한 뒤 UI에 매핑함.
     /// </summary>
     private void LoadAndDisplaySavedPhotos()
     {
-        // 배열 자체에 대한 Null 검사는 허용됨
         if (resultImages == null) return;
 
         ClearLoadedResultTextures();
@@ -522,7 +538,8 @@ public class SortManager : MonoBehaviour
         DirectoryInfo dirInfo = new DirectoryInfo(directoryPath);
         FileInfo[] files = dirInfo.GetFiles("*.png");
 
-        System.Array.Sort(files, (FileInfo a, FileInfo b) => b.CreationTime.CompareTo(a.CreationTime));
+        // 3. 파일명을 기준으로 내림차순 정렬하여 최신 파일이 인덱스 0번(첫 번째)으로 오도록 보장함
+        System.Array.Sort(files, (FileInfo a, FileInfo b) => b.Name.CompareTo(a.Name));
 
         for (int i = 0; i < resultImages.Length; i++)
         {
@@ -530,19 +547,27 @@ public class SortManager : MonoBehaviour
             {
                 if (i < files.Length)
                 {
-                    byte[] fileData = File.ReadAllBytes(files[i].FullName);
-                    Texture2D tex = new Texture2D(2, 2);
-                    
-                    if (tex.LoadImage(fileData))
+                    // 4. 백신 프로그램의 파일 검사 등으로 인한 I/O 충돌을 방어하기 위한 Try-Catch
+                    try
                     {
-                        resultImages[i].texture = tex;
-                        resultImages[i].gameObject.SetActive(true);
-                        
-                        loadedResultTextures.Add(tex);
+                        byte[] fileData = File.ReadAllBytes(files[i].FullName);
+                        Texture2D tex = new Texture2D(2, 2);
+
+                        if (tex.LoadImage(fileData))
+                        {
+                            resultImages[i].texture = tex;
+                            resultImages[i].gameObject.SetActive(true);
+                            loadedResultTextures.Add(tex);
+                        }
+                        else
+                        {
+                            Destroy(tex);
+                            resultImages[i].gameObject.SetActive(false);
+                        }
                     }
-                    else
+                    catch (System.Exception e)
                     {
-                        Destroy(tex);
+                        Debug.LogWarningFormat("SortManager: 사진 로드 실패 (파일 락 발생 가능성): {0}", e.Message);
                         resultImages[i].gameObject.SetActive(false);
                     }
                 }
@@ -580,6 +605,7 @@ public class SortManager : MonoBehaviour
                     Destroy(tex);
                 }
             }
+
             loadedResultTextures.Clear();
         }
     }
@@ -590,12 +616,12 @@ public class SortManager : MonoBehaviour
     private IEnumerator ShowButtonAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        
+
         if (subPage3NextButton)
         {
             subPage3NextButton.gameObject.SetActive(true);
         }
-        
+
         buttonShowCoroutine = null;
     }
 
@@ -610,7 +636,7 @@ public class SortManager : MonoBehaviour
         {
             audioSource.PlayOneShot(completeSound);
         }
-        
+
         SetSubPage(3);
 
         if (page2) page2.SetActive(false);
