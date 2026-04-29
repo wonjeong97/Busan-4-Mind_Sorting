@@ -1049,6 +1049,8 @@ GameObject:
   - component: {fileID: 1136104889}
   - component: {fileID: 1136104888}
   - component: {fileID: 1136104891}
+  - component: {fileID: 1136104893}
+  - component: {fileID: 1136104892}
   m_Layer: 5
   m_Name: Button_Start
   m_TagString: Untagged
@@ -1169,6 +1171,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f0d01ad439c17c4f862d4d6e3f9b5c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1136104892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136104886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29585275b82a7e148827d91177cdf5b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!225 &1136104893
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136104886}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1221681685
 GameObject:
   m_ObjectHideFlags: 0
@@ -1452,7 +1478,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d555352f0ddee6c4c929d86e6646b4bf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8594d030d2f0cdc44b602cf60e6f5d8a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

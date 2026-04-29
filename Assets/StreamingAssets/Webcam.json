@@ -1,8 +1,8 @@
 ﻿{
-    "Left": 0.0,
-    "Right": 0.0,
-    "Top": 0.0,
-    "Bottom": 0.0,
-    "FlipX": false,
-    "FlipY": false
+    "Left": 480.0,
+    "Right": 550.0,
+    "Top": 250.0,
+    "Bottom": 305.0,
+    "FlipX": true,
+    "FlipY": true
 }

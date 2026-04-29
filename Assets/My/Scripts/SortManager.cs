@@ -196,6 +196,17 @@ public class SortManager : MonoBehaviour
             flashCanvasGroup.alpha = 0f;
         }
 
+        // 웹캠 첫 프레임이 아직 준비되지 않은 경우 최대 3초 대기 (Intel 내장 GPU 등 초기화가 느린 환경 대응)
+        if (webcamTexture != null && webcamTexture.isPlaying)
+        {
+            float waitTime = 0f;
+            while (webcamTexture.width <= 16 && waitTime < 3f)
+            {
+                waitTime += Time.deltaTime;
+                yield return null;
+            }
+        }
+
         CaptureWebcam();
 
         // 캡처 완료 후 서브 페이지 2(인덱스 1)로 전환하며, SetSubPage 내부 로직에 의해 웹캠이 꺼짐
@@ -418,6 +429,12 @@ public class SortManager : MonoBehaviour
         if (!webcamTexture.isPlaying)
         {
             Debug.LogWarning("SortManager: 웹캠이 실행 중이 아니어서 캡처할 수 없습니다.");
+            return;
+        }
+
+        if (webcamTexture.width <= 16 || webcamTexture.height <= 16)
+        {
+            Debug.LogWarning("SortManager: 웹캠 첫 프레임이 아직 준비되지 않아 캡처할 수 없습니다.");
             return;
         }
 
